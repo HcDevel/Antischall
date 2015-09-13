@@ -1,20 +1,24 @@
 #define F_CPU 1000000
 
 #include <avr/io.h>
-#include <util/delay.h>
+#include <avr/interrupt.h>
 
 int main(void) {
-//Set the Data Direction Register to output
-DDRB |= (1<<0);
-DDRB |= (1<<4);
-PORTB ^= (1<<0);
+  DDRB |= (1<<0); //Lautsprecher
+  DDRB |= (1<<4);
 
-while (1) {
-//Toggle the signal
-PORTB ^= (1<<4);
-PORTB ^= (1<<0);
-//wait 0.5 sec
-_delay_us(1000);
+  TCCR0A = (1<<WGM01); //Timer für Schwingkreis
+  TCCR0B |= (1<<CS01);
+  OCR0A = 250; //TODO: Frequenz berechnen
+  TIMSK |= (1<<OCIE0A);
+  sei();
+
+  for (;;) {
+    
+  }
 }
-return 0;
+
+ISR (TIMER0_COMPA_vect) { //Togglen der Lautsprecher Pins bei Interrupt
+  PORTB ^= (1<<4);
+  PORTB ^= (1<<0);
 }
